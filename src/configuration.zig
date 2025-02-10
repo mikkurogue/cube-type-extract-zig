@@ -13,13 +13,20 @@ pub const Configuration = struct {
 
     allocator: std.mem.Allocator,
 
-    pub fn init() !void {
-        // FIXME: Read the config json and parse it to props
+    /// Init the configuration
+    pub fn init(self: *Configuration) !void {
+        _ = self;
     }
 
     pub fn deinit() void {}
 
     pub fn validate() bool {}
 
-    pub fn read() !Configuration {}
+    pub fn read(self: *Configuration) !Configuration {
+        const data = try std.fs.cwd().readFileAlloc(self.file_name, "./", 1024);
+
+        defer self.allocator.free(data);
+
+        return std.json.parseFromSlice(Configuration, self.allocator, data, .{ .allocate = .alloc_if_needed });
+    }
 };
